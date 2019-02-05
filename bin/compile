@@ -55,15 +55,7 @@ virtualenv() {
     python "$buildpack/vendor/virtualenv-1.11.6/virtualenv.py" "$@"
 }
 
-if test -f $build/Godeps
-then
-    name=$(<$build/Godeps jq -r .ImportPath)
-    ver=$(<$build/Godeps jq -r .GoVersion)
-elif test -d $build/Godeps
-then
-    name=$(<$build/Godeps/Godeps.json jq -r .ImportPath)
-    ver=$(<$build/Godeps/Godeps.json jq -r .GoVersion)
-elif test -f $build/.godir
+if test -f $build/.godir
 then
     name=$(cat $build/.godir)
     ver=go${GOVERSION:-1.11}
@@ -152,16 +144,6 @@ echo "-----> updating/installing godep"
 go get -u github.com/golang/dep/cmd/dep
 
 unset GIT_DIR # unset git dir or it will mess with goinstall
-cd $p
-if test -e $build/Gopkg.toml
-then
-    echo "-----> Running: dep ensure"
-    dep ensure
-else
-    echo "-----> Running: go get ${FLAGS[@]} ./..."
-    go get "${FLAGS[@]}" ./...
-fi
-
 
 mkdir -p $build/.profile.d
 echo 'PATH=$PATH:$HOME/bin' > $build/.profile.d/go.sh
