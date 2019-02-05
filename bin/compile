@@ -66,7 +66,7 @@ then
 elif test -f $build/.godir
 then
     name=$(cat $build/.godir)
-    ver=go${GOVERSION:-1.4}
+    ver=go${GOVERSION:-1.11}
 else
     echo >&2 " !     A .godir is required. For instructions:"
     echo >&2 " !     http://mmcgrana.github.io/2012/09/getting-started-with-go-on-heroku"
@@ -153,19 +153,10 @@ go get -u github.com/golang/dep/cmd/dep
 
 unset GIT_DIR # unset git dir or it will mess with goinstall
 cd $p
-if test -e $build/Godeps
+if test -e $build/Gopkg.toml
 then
-    if test -d $build/vendor
-    then
-        # go1.6+ or GO15VENDOREXPERIMENT
-        echo "-----> Running: godep restore"
-        godep restore
-    else
-        echo "-----> Copying workspace"
-        cp -R $(godep path)/* $GOPATH
-        echo "-----> Running: godep go install ${FLAGS[@]} ./..."
-        godep go install "${FLAGS[@]}" ./...
-    fi
+    echo "-----> Running: dep ensure"
+    dep ensure
 else
     echo "-----> Running: go get ${FLAGS[@]} ./..."
     go get "${FLAGS[@]}" ./...
